@@ -133,7 +133,7 @@ static void handleData(void* arg, AsyncClient* client, void *data, size_t len) {
       case 71:                  // Anfragen an andere Adressen liefern Müll!
         // die Register 40072..40128 werden im sec-Takt gelesen, reg_len==58
         signed int xsaldo;
-        xsaldo=(instantaneous_power_a_positive-instantaneous_power_a_negative);           // 1.7.0 - 2.7.0 = Power
+        xsaldo=((int32_t)instantaneous_power_a_positive-(int32_t)instantaneous_power_a_negative);           // 1.7.0 - 2.7.0 = Power
         floatvar.value=(float)(xsaldo);
         mBuffer[52]=(floatvar.bytes[3]);             // Power  Big Endian korrekt kopieren auf P gesamt 40098
         mBuffer[53]=(floatvar.bytes[2]);
