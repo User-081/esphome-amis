@@ -36,6 +36,8 @@
 ///*196*/  65535,                                             // End Mark,
 ///*197*/  0};                                                // nächster Block 0
 
+namespace esphome {
+    namespace amis {
 
 // Auf Big-Endian konvertierte Register-Var
 const uint16_t PROGMEM BE_holdregs[]={                                                           // Zählerkennung:
@@ -187,3 +189,7 @@ void meter_init() {
 	meter_server->onClient(&handleNewClient, meter_server);
 	meter_server->begin();
 }
+
+    }
+}
+
