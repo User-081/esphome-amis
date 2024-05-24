@@ -73,7 +73,7 @@ static void handleError(void* arg, AsyncClient* client, int8_t error) {
 }
 
 static void handleDisconnect(void* arg, AsyncClient* client) {
-	/ESP_LOGD(TAG, "[Fronius] client %s disconnected \n", client->remoteIP().toString().c_str());
+	ESP_LOGD(TAG, "[Fronius] client %s disconnected \n", client->remoteIP().toString().c_str());
 }
 
 static void handleTimeOut(void* arg, AsyncClient* client, uint32_t time) {
