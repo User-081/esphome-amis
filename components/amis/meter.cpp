@@ -69,15 +69,15 @@ uint32_t instantaneous_power_a_negative=0;
 
  /* clients events */
 static void handleError(void* arg, AsyncClient* client, int8_t error) {
-	ESP_LOGD(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error), client->remoteIP().toString().c_str());
+	//ESP_LOGD(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error), client->remoteIP().toString().c_str());
 }
 
 static void handleDisconnect(void* arg, AsyncClient* client) {
-	ESP_LOGD(TAG, "[Fronius] client %s disconnected \n", client->remoteIP().toString().c_str());
+	//ESP_LOGD(TAG, "[Fronius] client %s disconnected \n", client->remoteIP().toString().c_str());
 }
 
 static void handleTimeOut(void* arg, AsyncClient* client, uint32_t time) {
-	ESP_LOGD(TAG, "[Fronius] client ACK timeout ip: %s \n", client->remoteIP().toString().c_str());
+	//ESP_LOGD(TAG, "[Fronius] client ACK timeout ip: %s \n", client->remoteIP().toString().c_str());
 }
 
 static void handleData(void* arg, AsyncClient* client, void *data, size_t len);
