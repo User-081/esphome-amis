@@ -24,7 +24,7 @@ void amis::AMISComponent::setup() {
   this->bytes = 0;
   this->expect = 0;
 
-  meter_init()
+  meter_init();
 }
 
 void amis::AMISComponent::hex2bin(const std::string s, uint8_t *buf) {
