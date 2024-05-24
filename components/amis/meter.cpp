@@ -71,7 +71,7 @@ uint32_t instantaneous_power_a_negative=0;
 
  /* clients events */
 static void handleError(void* arg, AsyncClient* client, int8_t error) {
-	ESP_LOGWE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error), client->remoteIP().toString().c_str());
+	ESP_LOGE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error), client->remoteIP().toString().c_str());
 }
 
 static void handleDisconnect(void* arg, AsyncClient* client) {
