@@ -95,15 +95,15 @@ static void handleNewClient(void* arg, AsyncClient* client) {
 }
 
 static void handleData(void* arg, AsyncClient* client, void *data, size_t len) {
-  ESP_LOGD("[Fronius] Poll IP:%s\n",client->remoteIP().toString().c_str());
+  ESP_LOGD(TAG, "[Fronius] Poll IP:%s\n",client->remoteIP().toString().c_str());
   if (instantaneous_power_a_positive>0) return;               // erst beantworten wenn Zählerdaten vorhanden
 	memcpy(mHeader,data,len);
   uint16_t reg_idx=(mHeader[8]<<8) | mHeader[9];
   uint16_t reg_len=(mHeader[10]<<8) | mHeader[11];
-  ESP_LOGD("[Fronius] RegIdx:%d RegLen:%02d Dta:",reg_idx,reg_len);
+  ESP_LOGD(TAG, "[Fronius] RegIdx:%d RegLen:%02d Dta:",reg_idx,reg_len);
 //	for (unsigned i=0; i< len;i++) eprintf("%02x ",mHeader[i]);	eprintf("\n");
   if ((reg_idx > 40197 || reg_idx <40000 ) || mHeader[7]!=3) {   // Anfrage außerhalb Register
-    ESP_LOGE("[Fronius] Err %u\n",reg_idx);
+    ESP_LOGE(TAG, "[Fronius] Err %u\n",reg_idx);
     mHeader[5]=3;        // Länge
     mHeader[7]=0x83;     // FC MSB gesetzt
     mHeader[8]=2;        // Fehlercode "nicht verfügbar"
