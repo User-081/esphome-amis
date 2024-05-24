@@ -96,7 +96,7 @@ static void handleNewClient(void* arg, AsyncClient* client) {
 
 static void handleData(void* arg, AsyncClient* client, void *data, size_t len) {
   ESP_LOGD(TAG, "[Fronius] Poll IP:%s\n",client->remoteIP().toString().c_str());
-  if (instantaneous_energy_a_positive>0) return;               // erst beantworten wenn Zählerdaten vorhanden
+  if (energy_a_positive>0) return;               // erst beantworten wenn Zählerdaten vorhanden
 	memcpy(mHeader,data,len);
   uint16_t reg_idx=(mHeader[8]<<8) | mHeader[9];
   uint16_t reg_len=(mHeader[10]<<8) | mHeader[11];
