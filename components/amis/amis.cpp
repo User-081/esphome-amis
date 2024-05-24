@@ -295,14 +295,14 @@ void amis::AMISComponent::loop() {
   // Do we actually need a loop?
   uint8_t cnt = this->available();
   while (cnt > 0) {
-    ESP_LOGD(TAG, "bytes available, reading");
+    ESP_LOGV(TAG, "bytes available, reading");
     if((this->bytes + cnt) < sizeof(this->buffer)) {
 	  this->read_array(&this->buffer[bytes], cnt);
 	  bytes += cnt;
   
 	  cnt = this->available();
     } else {
-      ESP_LOGD(TAG, "rcv'd incomplete frame, clearing buffer");
+      ESP_LOGW(TAG, "rcv'd incomplete frame, clearing buffer");
       while(cnt > 0) {
         this->read_array(this->buffer, cnt);
         cnt = this->available();
@@ -313,7 +313,7 @@ void amis::AMISComponent::loop() {
     
     if(this->bytes >= 5 && this->expect == 0) {
       if(memcmp(this->buffer,"\x10\x40\xF0\x30\x16", 5) == 0) {
-        ESP_LOGD(TAG, "ack'ed frame");
+        ESP_LOGI(TAG, "ack'ed frame");
         this->write_byte(0xe5);
         this->bytes = 0;
       } else {
