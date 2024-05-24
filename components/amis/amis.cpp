@@ -9,6 +9,8 @@ extern uint32_t energy_a_negative;
 extern uint32_t instantaneous_power_a_positive;
 extern uint32_t instantaneous_power_a_negative;
 
+extern void meter_init();
+
 namespace esphome {
 namespace amis {
 
@@ -22,6 +24,7 @@ void amis::AMISComponent::setup() {
   this->bytes = 0;
   this->expect = 0;
 
+  meter_init()
 }
 
 void amis::AMISComponent::hex2bin(const std::string s, uint8_t *buf) {
