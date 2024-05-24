@@ -4,15 +4,15 @@
 #include <sstream>
 #include <iomanip>
 
+namespace esphome {
+namespace amis {
+
 extern uint32_t energy_a_positive;
 extern uint32_t energy_a_negative;
 extern uint32_t instantaneous_power_a_positive;
 extern uint32_t instantaneous_power_a_negative;
 
 extern void meter_init();
-
-namespace esphome {
-namespace amis {
 
 static const char *TAG = "amis";
 
