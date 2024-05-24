@@ -59,6 +59,13 @@ UFB floatvar;
 bool buffered;
 AsyncServer* meter_server;
 
+static const char *TAG = "amis_meter";
+
+uint32_t energy_a_positive=0;
+uint32_t energy_a_negative=0;
+uint32_t instantaneous_power_a_positive=0;
+uint32_t instantaneous_power_a_negative=0;
+
  /* clients events */
 static void handleError(void* arg, AsyncClient* client, int8_t error) {
 	//eprintf("[Fronius] connection error %s from client %s \n", client->errorToString(error), client->remoteIP().toString().c_str());
@@ -75,7 +82,7 @@ static void handleTimeOut(void* arg, AsyncClient* client, uint32_t time) {
 static void handleData(void* arg, AsyncClient* client, void *data, size_t len);
 
 static void handleNewClient(void* arg, AsyncClient* client) {
-	eprintf("[Fronius] new client has been connected to server, ip: %s\n", client->remoteIP().toString().c_str());
+	ESP_LOGD(TAG, "[Fronius] new client has been connected to server, ip: %s\n", client->remoteIP().toString().c_str());
 
 	// register events
 	client->onData(&handleData, NULL);
@@ -86,7 +93,7 @@ static void handleNewClient(void* arg, AsyncClient* client) {
 
 static void handleData(void* arg, AsyncClient* client, void *data, size_t len) {
   //eprintf("[Fronius] Poll IP:%s\n",client->remoteIP().toString().c_str());
-  if (valid!=5) return;               // erst beantworten wenn Zählerdaten vorhanden
+  if (instantaneous_power_a_positive>0) return;               // erst beantworten wenn Zählerdaten vorhanden
 	memcpy(mHeader,data,len);
   uint16_t reg_idx=(mHeader[8]<<8) | mHeader[9];
   uint16_t reg_len=(mHeader[10]<<8) | mHeader[11];
@@ -123,7 +130,7 @@ static void handleData(void* arg, AsyncClient* client, void *data, size_t len) {
       case 71:                  // Anfragen an andere Adressen liefern Müll!
         // die Register 40072..40128 werden im sec-Takt gelesen, reg_len==58
         signed int xsaldo;
-        xsaldo=(a_result[4]-a_result[5]);           // 1.7.0 - 2.7.0 = Power
+        xsaldo=(instantaneous_power_a_positive-instantaneous_power_a_negative);           // 1.7.0 - 2.7.0 = Power
         floatvar.value=(float)(xsaldo);
         mBuffer[52]=(floatvar.bytes[3]);             // Power  Big Endian korrekt kopieren auf P gesamt 40098
         mBuffer[53]=(floatvar.bytes[2]);
@@ -133,14 +140,14 @@ static void handleData(void* arg, AsyncClient* client, void *data, size_t len) {
 
       // die Register 40130..40160 werden jede Minute gelesen, reg_len==32
       case 129:
-        floatvar.value=((float)(a_result[1]));       // 2.8.0
+        floatvar.value=((float)(energy_a_negative));       // 2.8.0
         //eprintf("E %f %u %x %x %x %x\n",floatvar.value,a_result[1],floatvar.bytes[3],floatvar.bytes[2],floatvar.bytes[1],floatvar.bytes[0]);
         mBuffer[116]=floatvar.bytes[3];             // Energy  Big Endian korrekt kopieren auf export 40130
         mBuffer[117]=floatvar.bytes[2];
         mBuffer[118]=floatvar.bytes[1];
         mBuffer[119]=(floatvar.bytes[0]);
 
-        floatvar.value=((float)(a_result[0]));      // 1.8.0
+        floatvar.value=((float)(energy_a_positive));      // 1.8.0
         mBuffer[132]=(floatvar.bytes[3]);          // Energy  Big Endian korrekt kopieren auf import  40138
         mBuffer[133]=(floatvar.bytes[2]);
         mBuffer[134]=(floatvar.bytes[1]);
