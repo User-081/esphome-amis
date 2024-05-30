@@ -110,7 +110,7 @@ namespace esphome
             ESP_LOGD(TAG, "[Fronius] Poll IP:%s\n", client->remoteIP().toString().c_str());
             if (!isDataAvailable())
                 return; // erst beantworten wenn Zählerdaten vorhanden
-            mempy(mHeader, data, len < sizeof(mHeader) ? len : sizeof(mHeader));
+            memcpy(mHeader, data, len < sizeof(mHeader) ? len : sizeof(mHeader));
             uint16_t reg_idx = (mHeader[8] << 8) | mHeader[9];
             uint16_t reg_len = (mHeader[10] << 8) | mHeader[11];
             ESP_LOGD(TAG, "[Fronius] RegIdx:%d RegLen:%02d Dta:", reg_idx, reg_len);
