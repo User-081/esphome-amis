@@ -143,6 +143,9 @@ namespace esphome
                     memset(mBuffer, 0, sizeof(mBuffer));
                     mBuffer[48] = 0x42; // 40096: 50 Hz
                     mBuffer[49] = 0x48;
+
+                    mBuffer[16] = 0x43; // 40080: 230 V
+                    mBuffer[17] = 0x66;
                     buffered = true;
                 }
 
