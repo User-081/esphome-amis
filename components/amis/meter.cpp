@@ -146,6 +146,12 @@ namespace esphome
 
                     mBuffer[16] = 0x43; // 40080: 230 V
                     mBuffer[17] = 0x66;
+                    mBuffer[20] = 0x43; // 40082: 230 V
+                    mBuffer[21] = 0x66;
+                    mBuffer[24] = 0x43; // 40084: 230 V
+                    mBuffer[25] = 0x66;
+                    mBuffer[28] = 0x43; // 40086: 230 V
+                    mBuffer[29] = 0x66;
                     buffered = true;
                 }
 
