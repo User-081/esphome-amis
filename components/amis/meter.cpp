@@ -169,7 +169,7 @@ namespace esphome
                     mBuffer[55] = (floatvar.bytes[0]);
 
                     xsaldoPhase = xsaldo / 3;
-                    floatvar.value = (float)(xsaldo);
+                    floatvar.value = (float)(xsaldoPhase);
                     mBuffer[56] = (floatvar.bytes[3]); // Power Phase A  Big Endian korrekt kopieren auf P gesamt 40100
                     mBuffer[57] = (floatvar.bytes[2]);
                     mBuffer[58] = (floatvar.bytes[1]);
