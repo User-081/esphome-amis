@@ -173,8 +173,8 @@ namespace esphome
                     mBuffer[57] = (floatvar.bytes[2]);
                     mBuffer[58] = (floatvar.bytes[1]);
                     mBuffer[59] = (floatvar.bytes[0]);
-                    *((int32_t*)&mBuffer[60]) = *((int32_t*)&mBuffer[56]; // Power Phase B 40102
-                    *((int32_t*)&mBuffer[64]) = *((int32_t*)&mBuffer[56]; // Power Phase C 40104
+                    *((int32_t*)&mBuffer[60]) = *((int32_t*)&mBuffer[56]); // Power Phase B 40102
+                    *((int32_t*)&mBuffer[64]) = *((int32_t*)&mBuffer[56]); // Power Phase C 40104
                     break;
 
                 // die Register 40130..40160 werden jede Minute gelesen, reg_len==32
