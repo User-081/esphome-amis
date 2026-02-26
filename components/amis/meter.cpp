@@ -168,14 +168,20 @@ namespace esphome
                     mBuffer[54] = (floatvar.bytes[1]);
                     mBuffer[55] = (floatvar.bytes[0]);
 
-                    xsaldoPhase = xsaldo / 3;
+                    xsaldoPhaseAB = xsaldo / 3;
                     floatvar.value = (float)(xsaldoPhase);
-                    mBuffer[56] = (floatvar.bytes[3]); // Power Phase A  Big Endian korrekt kopieren auf P gesamt 40100
+                    mBuffer[56] = (floatvar.bytes[3]); // Power Phase A  Big Endian korrekt kopieren auf P Phase A 40100
                     mBuffer[57] = (floatvar.bytes[2]);
                     mBuffer[58] = (floatvar.bytes[1]);
                     mBuffer[59] = (floatvar.bytes[0]);
-                    *((int32_t*)&mBuffer[60]) = *((int32_t*)&mBuffer[56]); // Power Phase B 40102
-                    *((int32_t*)&mBuffer[64]) = *((int32_t*)&mBuffer[56]); // Power Phase C 40104
+                    *((int32_t*)&mBuffer[60]) = *((int32_t*)&mBuffer[56]); // Power Phase B 40102 equals Phase A
+                    
+                    xsaldoPhaseC = xsaldo - xsaldoPhaseAB - xsaldoPhaseAB;
+                    floatvar.value = (float)(xsaldoPhaseC);
+                    mBuffer[64] = (floatvar.bytes[3]); // Power Phase C  Big Endian korrekt kopieren auf P Phase C 40104
+                    mBuffer[65] = (floatvar.bytes[2]);
+                    mBuffer[66] = (floatvar.bytes[1]);
+                    mBuffer[67] = (floatvar.bytes[0]);
                     break;
 
                 // die Register 40130..40160 werden jede Minute gelesen, reg_len==32
