@@ -160,7 +160,8 @@ namespace esphome
                 case 71: // Anfragen an andere Adressen liefern Müll!
                     // die Register 40072..40128 werden im sec-Takt gelesen, reg_len==58
                     signed int xsaldo;
-                    signed int xsaldoPhase;
+                    signed int xsaldoPhaseAB;
+                    signed int xsaldoPhaseC;
                     xsaldo = ((int32_t)instantaneous_power_a_positive - (int32_t)instantaneous_power_a_negative); // 1.7.0 - 2.7.0 = Power
                     floatvar.value = (float)(xsaldo);
                     mBuffer[52] = (floatvar.bytes[3]); // Power  Big Endian korrekt kopieren auf P gesamt 40098
@@ -169,7 +170,7 @@ namespace esphome
                     mBuffer[55] = (floatvar.bytes[0]);
 
                     xsaldoPhaseAB = xsaldo / 3;
-                    floatvar.value = (float)(xsaldoPhase);
+                    floatvar.value = (float)(xsaldoPhaseAB);
                     mBuffer[56] = (floatvar.bytes[3]); // Power Phase A  Big Endian korrekt kopieren auf P Phase A 40100
                     mBuffer[57] = (floatvar.bytes[2]);
                     mBuffer[58] = (floatvar.bytes[1]);
