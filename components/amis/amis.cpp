@@ -261,6 +261,8 @@ void amis::AMISComponent::amis_decode() {
             if(this->instantaneous_power_a_positive_sensor) {
               this->instantaneous_power_a_positive_sensor->publish_state(temp);
               instantaneous_power_a_positive = temp;
+            }
+          }
         break;
 
         case 0x29: // Spannung
@@ -428,10 +430,10 @@ void amis::AMISComponent::loop() {
   while (cnt > 0) {
     ESP_LOGD(TAG, "bytes available, reading");
     if((this->bytes + cnt) < sizeof(this->buffer)) {
-	  this->read_array(&this->buffer[bytes], cnt);
-	  bytes += cnt;
-  
-	  cnt = this->available();
+      this->read_array(&this->buffer[bytes], cnt);
+      bytes += cnt;
+    
+      cnt = this->available();
     } else {
       ESP_LOGD(TAG, "rcv'd incomplete frame, clearing buffer");
       while(cnt > 0) {
