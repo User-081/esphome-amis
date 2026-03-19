@@ -7,6 +7,13 @@
 namespace esphome {
 namespace amis {
 
+extern uint32_t energy_a_positive;
+extern uint32_t energy_a_negative;
+extern uint32_t instantaneous_power_a_positive;
+extern uint32_t instantaneous_power_a_negative;
+
+extern void meter_init();
+
 static const char *TAG = "amis";
 
 #define CHR2BIN(c) (c-(c>='A'?55:48))
@@ -17,6 +24,7 @@ void amis::AMISComponent::setup() {
   this->bytes = 0;
   this->expect = 0;
 
+  meter_init();
 }
 
 void amis::AMISComponent::hex2bin(const std::string s, uint8_t *buf) {
@@ -192,8 +200,10 @@ void amis::AMISComponent::amis_decode() {
             // 1.8.0
             memcpy(&temp, &this->decode_buffer[i], data_len);
             ESP_LOGD(TAG, "1.8.0: %d", temp);
-            if(this->energy_a_positive_sensor)
+            if(this->energy_a_positive_sensor) {
               this->energy_a_positive_sensor->publish_state(temp);
+              energy_a_positive = temp;
+            }
           }
         break;
         case 0x83:
@@ -201,8 +211,10 @@ void amis::AMISComponent::amis_decode() {
             // 2.8.0
             memcpy(&temp, &this->decode_buffer[i], data_len);
             ESP_LOGD(TAG, "2.8.0: %d", temp);
-            if(this->energy_a_negative_sensor)
+            if(this->energy_a_negative_sensor) {
               this->energy_a_negative_sensor->publish_state(temp);
+              energy_a_negative = temp;
+            }
           }
         break;
         case 0xfb:
@@ -240,8 +252,10 @@ void amis::AMISComponent::amis_decode() {
             // 1.7.0
             memcpy(&temp, &this->decode_buffer[i], data_len);
             ESP_LOGD(TAG, "1.7.0: %d", temp);
-            if(this->instantaneous_power_a_positive_sensor)
+            if(this->instantaneous_power_a_positive_sensor) {
               this->instantaneous_power_a_positive_sensor->publish_state(temp);
+              instantaneous_power_a_positive = temp;
+            }
           }
         break;
         case 0xab:
@@ -249,8 +263,10 @@ void amis::AMISComponent::amis_decode() {
             // 2.7.0
             memcpy(&temp, &this->decode_buffer[i], data_len);
             ESP_LOGD(TAG, "2.7.0: %d", temp);
-            if(this->instantaneous_power_a_negative_sensor)
+            if(this->instantaneous_power_a_negative_sensor) {
               this->instantaneous_power_a_negative_sensor->publish_state(temp);
+              instantaneous_power_a_negative = temp;
+            }
           }
         break;
       }
