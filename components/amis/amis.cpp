@@ -130,7 +130,13 @@ void amis::AMISComponent::amis_decode() {
     // https://github.com/volkszaehler/vzlogger/blob/master/src/protocols/MeterOMS.cpp
     // line 591
 
-
+    std::string dump;
+    for (size_t j = 0; j < sizeof(this->decode_buffer); j++) {
+      char buf[6];
+      snprintf(buf, sizeof(buf), "%02X ", this->decode_buffer[j]);
+      dump += buf;
+    }
+    ESP_LOGD(TAG, "Datagram Dump: %s", dump.c_str());
 
     i = 2;
     // 80 is the maximum size of data that we decrypt
@@ -172,6 +178,8 @@ void amis::AMISComponent::amis_decode() {
       
       i++;
       
+      ESP_LOGD(TAG, "DIF=0x%02X DIFE=0x%02X VIF=0x%02X VIFE=0x%02X LEN=%d", dif, dife, vif, vife, data_len);
+
       switch(vif) {
         case 0x6d:
           t.tm_sec = this->decode_buffer[i] & 0x3f;
@@ -203,8 +211,7 @@ void amis::AMISComponent::amis_decode() {
             if(this->energy_a_positive_sensor) {
               this->energy_a_positive_sensor->publish_state(temp);
               energy_a_positive = temp;
-            }
-          }
+            }          }
         break;
         case 0x83:
           if(dif == 0x04 && vife == 0x3c) {
@@ -214,8 +221,7 @@ void amis::AMISComponent::amis_decode() {
             if(this->energy_a_negative_sensor) {
               this->energy_a_negative_sensor->publish_state(temp);
               energy_a_negative = temp;
-            }
-          }
+            }          }
         break;
         case 0xfb:
           if(dif == 0x84 && dife == 0x10 && vife == 0x73) {
@@ -255,7 +261,53 @@ void amis::AMISComponent::amis_decode() {
             if(this->instantaneous_power_a_positive_sensor) {
               this->instantaneous_power_a_positive_sensor->publish_state(temp);
               instantaneous_power_a_positive = temp;
-            }
+        break;
+
+        case 0x29: // Spannung
+          if (dife == 0x00 && vife == 0x00 && dif == 0x04) {
+            // 32.7.0 - Spannung L1
+            memcpy(&temp, &this->decode_buffer[i], data_len);
+            ESP_LOGD(TAG, "32.7.0 (U L1): %d", temp);
+            if (this->voltage_l1_sensor)
+              this->voltage_l1_sensor->publish_state(temp);
+          }
+          if (dife == 0x00 && vife == 0x01 && dif == 0x04) {
+            // 52.7.0 - Spannung L2
+            memcpy(&temp, &this->decode_buffer[i], data_len);
+            ESP_LOGD(TAG, "52.7.0 (U L2): %d", temp);
+            if (this->voltage_l2_sensor)
+              this->voltage_l2_sensor->publish_state(temp);
+          }
+          if (dife == 0x00 && vife == 0x02 && dif == 0x04) {
+            // 72.7.0 - Spannung L3
+            memcpy(&temp, &this->decode_buffer[i], data_len);
+            ESP_LOGD(TAG, "72.7.0 (U L3): %d", temp);
+            if (this->voltage_l3_sensor)
+              this->voltage_l3_sensor->publish_state(temp);
+          }
+        break;
+
+        case 0x39: // Strom
+          if (dife == 0x00 && vife == 0x00 && dif == 0x04) {
+            // 31.7.0 - Strom L1
+            memcpy(&temp, &this->decode_buffer[i], data_len);
+            ESP_LOGD(TAG, "31.7.0 (I L1): %d", temp);
+            if (this->current_l1_sensor)
+              this->current_l1_sensor->publish_state(temp);
+          }
+          if (dife == 0x00 && vife == 0x01 && dif == 0x04) {
+            // 51.7.0 - Strom L2
+            memcpy(&temp, &this->decode_buffer[i], data_len);
+            ESP_LOGD(TAG, "51.7.0 (I L2): %d", temp);
+            if (this->current_l2_sensor)
+              this->current_l2_sensor->publish_state(temp);
+          }
+          if (dife == 0x00 && vife == 0x02 && dif == 0x04) {
+            // 71.7.0 - Strom L3
+            memcpy(&temp, &this->decode_buffer[i], data_len);
+            ESP_LOGD(TAG, "71.7.0 (I L3): %d", temp);
+            if (this->current_l3_sensor)
+              this->current_l3_sensor->publish_state(temp);
           }
         break;
         case 0xab:
@@ -290,9 +342,88 @@ void amis::AMISComponent::dump_config() {
 
 }
 
+enum HandshakeState {
+  HANDSHAKE_IDLE,
+  HANDSHAKE_SENT_REQUEST,
+  HANDSHAKE_SEND_ACK,
+  HANDSHAKE_SENT_ACK,
+  HANDSHAKE_DONE
+};
+
+HandshakeState handshake_state = HANDSHAKE_IDLE;
+unsigned long handshake_timer = 0;
+
+char response_buffer[256];
+int response_index = 0;
+int response_attempts = 0;
+
 void amis::AMISComponent::loop() {
-  // This is the polling routine
-  // Do we actually need a loop?
+  unsigned long now = millis();
+  // ?? Handshake-Logik
+  switch (handshake_state) {
+    case HANDSHAKE_IDLE:
+      if (now - handshake_timer < 30000) {
+        return;
+      }
+      this->parent_->set_baud_rate(300);
+      delay(300);
+      ESP_LOGD(TAG, "Baud rate: %d", this->parent_->get_baud_rate());
+      this->write_str("/?!\r\n");
+      ESP_LOGD(TAG, "Sent /?! request");
+      handshake_timer = now;
+      handshake_state = HANDSHAKE_SENT_REQUEST;
+      return;
+
+    case HANDSHAKE_SENT_REQUEST:
+      response_index = 0;
+      while (this->available()) {
+        char c = this->read();
+        ESP_LOGD(TAG, "Received byte: 0x%02X (%c)", c, c);
+        response_buffer[response_index++] = c;
+        if (response_index >= sizeof(response_buffer)) response_index = 0;
+      }
+      if (response_index > 0 && response_index < 10) {
+        ESP_LOGD(TAG, "Handshake not successful: %s on attempt %d", response_buffer, response_attempts++);
+        if (response_attempts >= 3) {
+          response_attempts = 0;
+          handshake_timer = now;
+          handshake_state = HANDSHAKE_IDLE;
+          delay(30000);
+        } else {
+          delay(500);
+        }
+      } else if (response_index > 0) {
+        ESP_LOGD(TAG, "Handshake response: %s", response_buffer);
+        handshake_timer = now;
+        handshake_state = HANDSHAKE_SEND_ACK;
+      }
+      return;
+
+    case HANDSHAKE_SEND_ACK:
+      this->write_array((const uint8_t[]){0x06, 0x30, 0x35, 0x30, 0x0D, 0x0A}, 6);
+      ESP_LOGD(TAG, "Sent ACK + Mode C");
+      handshake_timer = now;
+      handshake_state = HANDSHAKE_SENT_ACK;
+      return;
+
+    case HANDSHAKE_SENT_ACK:
+      this->parent_->set_baud_rate(9600);
+      delay(300);
+      ESP_LOGD(TAG, "Switched to %d baud", this->parent_->get_baud_rate());
+      handshake_state = HANDSHAKE_DONE;
+      this->bytes = 0;
+      this->expect = 0;
+      return;
+      
+    case HANDSHAKE_DONE:
+      break;
+  }
+
+  // ?? Normale Empfangslogik
+  if (handshake_state != HANDSHAKE_DONE)
+    return;  // warte bis Handshake abgeschlossen
+
+
   uint8_t cnt = this->available();
   while (cnt > 0) {
     ESP_LOGD(TAG, "bytes available, reading");
