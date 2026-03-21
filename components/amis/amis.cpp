@@ -269,6 +269,9 @@ void amis::AMISComponent::amis_decode() {
             }
           }
         break;
+        default:
+          ESPD_LOGD(TAG, "Got unkown vif %x", vif);
+        break;
       }
       
       
