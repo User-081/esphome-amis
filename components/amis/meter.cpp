@@ -216,7 +216,7 @@ namespace esphome
                 client->add((char *)mHeader, 9); // MBAP Header
                 if (reg_idx < 71)
                 { // Allg. Daten aus ROM
-                    memcpy_P(mBuffer, &BE_holdregs[reg_idx], reg_len * 2);
+                    memcpy(mBuffer, &BE_holdregs[reg_idx], reg_len * 2);
                     buffIdx = 0;
                     buffered = false;
                 }
