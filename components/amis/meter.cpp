@@ -42,7 +42,7 @@ namespace esphome
     {
 
         // Auf Big-Endian konvertierte Register-Var
-        const uint16_t PROGMEM BE_holdregs[] = {                                                   // Zählerkennung:
+        const uint16_t BE_holdregs[] = {                                                   // Zählerkennung:
             /*00*/ 0x7553, 0x536e, 0x0100, 0x4100, 0x4100, 0x6d00, 0x6900, 0x7300, 0x2000, 0x5200, // SunSA m i s   R
             /*10*/ 0x6500, 0x6100, 0x6400, 0x6500, 0x7200, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // e a d e r
             /*20*/ 0x5300, 0x6d00, 0x6100, 0x7200, 0x7400, 0x2000, 0x4d00, 0x6500, 0x7400, 0x6500,
