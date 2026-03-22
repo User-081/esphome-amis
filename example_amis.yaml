@@ -1,7 +1,12 @@
 esphome:
   name: amis
-  platform: ESP32
+
+esp32:
   board: esp-wrover-kit
+  framework:
+    type: esp-idf
+    components:
+      - ESP32Async/AsyncTCP^3.3.3~1
 
 wifi:
   ssid: "xxxxxxx"
@@ -23,7 +28,7 @@ api:
 ota:
 
 external_components:
-  - source: github://andyboeh/esphome-amis
+  - source: github://User-081/esphome-amis@Test_esp32
     components: amis
 
 time:
