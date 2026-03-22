@@ -74,24 +74,24 @@ namespace esphome
         /* clients events */
         static void handleError(void *arg, AsyncClient *client, int8_t error)
         {
-            ESP_LOGE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error), client->remoteIP().toString().c_str());
+            ESP_LOGE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error), client->getRemoteAddress4().toString().c_str());
         }
 
         static void handleDisconnect(void *arg, AsyncClient *client)
         {
-            ESP_LOGI(TAG, "[Fronius] client %s disconnected \n", client->remoteIP().toString().c_str());
+            ESP_LOGI(TAG, "[Fronius] client %s disconnected \n", client->getRemoteAddress4().toString().c_str());
         }
 
         static void handleTimeOut(void *arg, AsyncClient *client, uint32_t time)
         {
-            ESP_LOGW(TAG, "[Fronius] client ACK timeout ip: %s \n", client->remoteIP().toString().c_str());
+            ESP_LOGW(TAG, "[Fronius] client ACK timeout ip: %s \n", client->getRemoteAddress4().toString().c_str());
         }
 
         static void handleData(void *arg, AsyncClient *client, void *data, size_t len);
 
         static void handleNewClient(void *arg, AsyncClient *client)
         {
-            ESP_LOGI(TAG, "[Fronius] new client has been connected to server, ip: %s\n", client->remoteIP().toString().c_str());
+            ESP_LOGI(TAG, "[Fronius] new client has been connected to server, ip: %s\n", client->getRemoteAddress4().toString().c_str());
 
             // register events
             client->onData(&handleData, NULL);
@@ -107,7 +107,7 @@ namespace esphome
 
         static void handleData(void *arg, AsyncClient *client, void *data, size_t len)
         {
-            ESP_LOGD(TAG, "[Fronius] Poll IP:%s\n", client->remoteIP().toString().c_str());
+            ESP_LOGD(TAG, "[Fronius] Poll IP:%s\n", client->getRemoteAddress4().toString().c_str());
             if (!isDataAvailable())
                 return; // erst beantworten wenn Zählerdaten vorhanden
             memcpy(mHeader, data, len < sizeof(mHeader) ? len : sizeof(mHeader));
