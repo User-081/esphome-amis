@@ -74,7 +74,8 @@ namespace esphome
         /* clients events */
         static void handleError(void *arg, AsyncClient *client, int8_t error)
         {
-            ESP_LOGE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error),  ip4addr_ntoa(&client->getRemoteAddress4()));
+            const ip4_addr_t remote_ip = client->getRemoteAddress4();
+            ESP_LOGE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error),  ip4addr_ntoa(&remote_ip));
         }
 
         static void handleDisconnect(void *arg, AsyncClient *client)
