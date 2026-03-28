@@ -74,24 +74,24 @@ namespace esphome
         /* clients events */
         static void handleError(void *arg, AsyncClient *client, int8_t error)
         {
-//            ESP_LOGE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error),  ip4addr_ntoa(&client->getRemoteAddress4()));
+            ESP_LOGE(TAG, "[Fronius] connection error %s from client %s \n", client->errorToString(error),  ip4addr_ntoa(client->getRemoteAddress4()));
         }
 
         static void handleDisconnect(void *arg, AsyncClient *client)
         {
-//            ESP_LOGI(TAG, "[Fronius] client %s disconnected \n",  ip4addr_ntoa(&client->getRemoteAddress4()));
+            ESP_LOGI(TAG, "[Fronius] client %s disconnected \n",  ip4addr_ntoa(client->getRemoteAddress4()));
         }
 
         static void handleTimeOut(void *arg, AsyncClient *client, uint32_t time)
         {
-//            ESP_LOGW(TAG, "[Fronius] client ACK timeout ip: %s \n", ip4addr_ntoa(&client->getRemoteAddress4()));
+            ESP_LOGW(TAG, "[Fronius] client ACK timeout ip: %s \n", ip4addr_ntoa(client->getRemoteAddress4()));
         }
 
         static void handleData(void *arg, AsyncClient *client, void *data, size_t len);
 
         static void handleNewClient(void *arg, AsyncClient *client)
         {
-//            ESP_LOGI(TAG, "[Fronius] new client has been connected to server, ip: %s\n", ip4addr_ntoa(&client->getRemoteAddress4()));
+            ESP_LOGI(TAG, "[Fronius] new client has been connected to server, ip: %s\n", ip4addr_ntoa(client->getRemoteAddress4()));
 
             // register events
             client->onData(&handleData, NULL);
@@ -107,13 +107,13 @@ namespace esphome
 
         static void handleData(void *arg, AsyncClient *client, void *data, size_t len)
         {
-//            ESP_LOGD(TAG, "[Fronius] Poll IP:%s\n",  ip4addr_ntoa(&client->getRemoteAddress4()));
+            ESP_LOGD(TAG, "[Fronius] Poll IP:%s\n",  ip4addr_ntoa(client->getRemoteAddress4()));
             if (!isDataAvailable())
                 return; // erst beantworten wenn Zählerdaten vorhanden
             memcpy(mHeader, data, len < sizeof(mHeader) ? len : sizeof(mHeader));
             uint16_t reg_idx = (mHeader[8] << 8) | mHeader[9];
             uint16_t reg_len = (mHeader[10] << 8) | mHeader[11];
-//            ESP_LOGD(TAG, "[Fronius] RegIdx:%d RegLen:%02d Dta:", reg_idx, reg_len);
+            ESP_LOGD(TAG, "[Fronius] RegIdx:%d RegLen:%02d Dta:", reg_idx, reg_len);
             //	for (unsigned i=0; i< len;i++) eprintf("%02x ",mHeader[i]);	eprintf("\n");
             if ((reg_idx > 40197 || reg_idx < 40000) || mHeader[7] != 3)
             { // Anfrage außerhalb Register
