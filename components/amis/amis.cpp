@@ -123,7 +123,7 @@ void amis::AMISComponent::amis_decode() {
     AES128_CBC_decrypt_buffer(this->decode_buffer + 64, this->buffer + OFFS_DIF + 64, 16, 0, 0);
 
     if(this->decode_buffer[0] != 0x2f || this->decode_buffer[1] != 0x2f) {
-      ESP_LOGD(TAG, "decryption sanity check failed.");
+      ESP_LOGE(TAG, "decryption sanity check failed.");
       goto out;
     }
 
@@ -185,7 +185,7 @@ void amis::AMISComponent::amis_decode() {
           t.tm_isdst = ((this->decode_buffer[i] & 0x40) == 0x40) ? 1 : 0;
 
           if((this->decode_buffer[i+1] & 0x80) == 0x80) {
-            ESP_LOGD(TAG, "time invalid");
+            ESP_LOGE(TAG, "time invalid");
             goto out;
           } else {
             ESP_LOGD(TAG, "time=%.2d-%.2d-%.2d %.2d:%.2d:%.2d",
@@ -276,7 +276,7 @@ void amis::AMISComponent::amis_decode() {
     }
 
   } else {
-    ESP_LOGD(TAG, "check bad");
+    ESP_LOGE(TAG, "check bad");
   }
 
 out:
